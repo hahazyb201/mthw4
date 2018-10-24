@@ -96,8 +96,6 @@ def split_lines(input_file):
 
 
 def make_vocabs(src_lang_code, tgt_lang_code, train_file):
-        """ Creates the vocabs for each of the langues based on the training corpus.
-        """
     src_vocab = Vocab(src_lang_code)
     tgt_vocab = Vocab(tgt_lang_code)
 
@@ -115,22 +113,18 @@ def make_vocabs(src_lang_code, tgt_lang_code, train_file):
 ######################################################################
 
 def tensor_from_sentence(vocab, sentence):
-        """creates a tensor from a raw sentence
-        """
     indexes = []
     for word in sentence.split():
         try:
             indexes.append(vocab.word2index[word])
         except KeyError:
             pass
-        # logging.warn('skipping unknown subword %s. Joint BPE can produces subwords at test time which are not in vocab. As long as this doesnt happen every sentence, this is fine.', word)
+    # logging.warn('skipping unknown subword %s. Joint BPE can produces subwords at test time which are not in vocab. As long as this doesnt happen every sentence, this is fine.', word)
     indexes.append(EOS_index)
     return torch.tensor(indexes, dtype=torch.long, device=device).view(-1, 1)
 
 
 def tensors_from_pair(src_vocab, tgt_vocab, pair):
-        """creates a tensor from a raw sentence pair
-        """
     input_tensor = tensor_from_sentence(src_vocab, pair[0])
     target_tensor = tensor_from_sentence(tgt_vocab, pair[1])
     return input_tensor, target_tensor
@@ -140,8 +134,6 @@ def tensors_from_pair(src_vocab, tgt_vocab, pair):
 
 
 class EncoderRNN(nn.Module):
-    """the class for the enoder RNN
-    """
     def __init__(self, input_size, hidden_size):
         super(EncoderRNN, self).__init__()
         self.hidden_size = hidden_size
@@ -152,7 +144,6 @@ class EncoderRNN(nn.Module):
         You should make your LSTM modular and re-use it in the Decoder.
         """
         "*** YOUR CODE HERE ***"
-#         raise NotImplementedError
         self.input_size = input_size
         self.hidden_size = hidden_size
         self.embedding = nn.Embedding(input_size, hidden_size)
@@ -214,7 +205,7 @@ class EncoderRNN(nn.Module):
         #return output, hidden
 
     def get_initial_hidden_state(self):
-#         return torch.zeros(1, 1, self.hidden_size, device=device)
+        #return torch.zeros(1, 1, self.hidden_size, device=device)
         return nn.Parameter(torch.Tensor(self.hidden_size).uniform_())
 
 
@@ -467,14 +458,7 @@ class AttnDecoderRNN(nn.Module):
         self.out = nn.Linear(self.hidden_size, self.output_size)
 
     def forward(self, input, hidden, encoder_outputs):
-                """runs the forward pass of the decoder
-                returns the log_softmax, hidden state, and attn_weights
-                
-                Dropout (self.dropout) should be applied to the word embeddings.
-                """
-                
         "*** YOUR CODE HERE ***"
-                #raise NotImplementedError
         embedding = self.embedding(input).view(1,1-1)
         embedding_d = self.dropout(embedding)
         attn_weights = self.attn(hidden[-1],encoder_outputs,self.max_length)
@@ -492,8 +476,6 @@ class AttnDecoderRNN(nn.Module):
 
 def train(input_tensor, target_tensor, encoder, decoder, optimizer, criterion, max_length=MAX_LENGTH):
     encoder_hidden = encoder.get_initial_hidden_state()
-
-        # make sure the encoder and decoder are in training mode so dropout is applied
     encoder.train()
     decoder.train()
 
@@ -505,7 +487,7 @@ def train(input_tensor, target_tensor, encoder, decoder, optimizer, criterion, m
     encoder_hidden_right = encoder.get_initial_hidden_state()
     encoder_outputs_left = torch.zeros(max_length, encoder.hidden_size)
     encoder_outputs_right = torch.zeros(max_length, encoder.hidden_size)
-    encoder_outputs = torch.zeros(max_length, encoder.hidden_size)
+    encoder_outputs = torch.zeros(max_length, 2*encoder.hidden_size)
     loss = 0
     for i in range(input_length):
         encoder_output_left, encoder_hidden_left = encoder.forward(input_tensor[i], encoder_hidden_left)
@@ -538,10 +520,6 @@ def train(input_tensor, target_tensor, encoder, decoder, optimizer, criterion, m
 ######################################################################
 
 def translate(encoder, decoder, sentence, src_vocab, tgt_vocab, max_length=MAX_LENGTH):
-    """
-    runs tranlsation, returns the output and attention
-    """
-
     # switch the encoder and decoder to eval mode so they are not applying dropout
     encoder.eval()
     decoder.eval()
@@ -640,10 +618,6 @@ def translate_and_show_attention(input_sentence, encoder1, decoder1, src_vocab, 
 
 
 def clean(strx):
-    """
-    input: string with bpe, EOS
-    output: list without bpe, EOS
-    """
     return ' '.join(strx.replace('@@ ', '').replace(EOS_token, '').strip().split())
 
 
