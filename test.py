@@ -53,8 +53,6 @@ MAX_LENGTH = 15
 
 
 class Vocab:
-    """ This class handles the mapping between the words and their indicies
-    """
     def __init__(self, lang_code):
         self.lang_code = lang_code
         self.word2index = {}
@@ -80,13 +78,6 @@ class Vocab:
 
 
 def split_lines(input_file):
-    """split a file like:
-    first src sentence|||first tgt sentence
-    second src sentence|||second tgt sentence
-    into a list of things like
-    [("first src sentence", "first tgt sentence"), 
-     ("second src sentence", "second tgt sentence")]
-    """
     logging.info("Reading lines of %s...", input_file)
     # Read the file and split into lines
     lines = open(input_file, encoding='utf-8').read().strip().split('\n')
@@ -183,9 +174,6 @@ class EncoderRNN(nn.Module):
 
 
     def forward(self, input, hidden):
-        """runs the forward pass of the encoder
-        returns the output and the hidden state
-        """
         "*** YOUR CODE HERE ***"
         # print (self.embedding)
         self.t += 1
@@ -437,8 +425,6 @@ class AttnLayer(nn.Module):
         attn_eng = ent.squeeze(1)
 
 class AttnDecoderRNN(nn.Module):
-        """the class for the decoder 
-        """
     def __init__(self, hidden_size, output_size, dropout_p=0.1, max_length=MAX_LENGTH):
         super(AttnDecoderRNN, self).__init__()
         self.hidden_size = hidden_size
@@ -446,10 +432,7 @@ class AttnDecoderRNN(nn.Module):
         self.dropout_p = dropout_p
         self.max_length = max_length
                 
-                """Initilize your word embedding, decoder LSTM, and weights needed for your attention here
-                """
         "*** YOUR CODE HERE ***"
-                #raise NotImplementedError
         self.embedded_size = hidden_size
         self.embedding = nn.Embedding(self.output_size, self.hidden_size)
         self.dropout = nn.Dropout(dropout_p)
@@ -590,12 +573,6 @@ def translate_random_sentence(encoder, decoder, pairs, src_vocab, tgt_vocab, n=1
 ######################################################################
 
 def show_attention(input_sentence, output_words, attentions):
-    """visualize the attention mechanism. And save it to a file. 
-    Plots should look roughly like this: https://i.stack.imgur.com/PhtQi.png
-    You plots should include axis labels and a legend.
-    you may want to use matplotlib.
-    """
-    
     "*** YOUR CODE HERE ***"
     pic=plt.figure()
     axes=pic.add_subplot(111)
